@@ -2,7 +2,7 @@ const express = require('express');
 
 const app = express();
 
-const { readFile } = require('./assets/utils')
+const { readFile } = require('./assets/utils');
 
 app.use(express.json());
 
@@ -18,7 +18,6 @@ app.get('/talker', async (_req, res) => {
   const talkers = await readFile();
   return res.status(HTTP_OK_STATUS).json(talkers || []);
 });
-
 
 app.listen(PORT, () => {
   console.log('Online');
