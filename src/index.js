@@ -35,7 +35,7 @@ app.get('/talker/:id', async (req, res) => {
   return res.status(HTTP_OK_STATUS).json(getTalker);
 });
 
-// Req 03
+// Req 03 e 04
 app.use(bodyParser.json());
 
 function generateToken(length) {
@@ -48,20 +48,25 @@ function generateToken(length) {
   return token;
 }
 
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
-  // const generateToken = crypto.randomBytes(16, (err, buf) => {
-  //   if (err) {
-  //     console.log(err);
-  //   }
-  //   return buf.toString('hex');
-  // });
-  if (email && password) {
-    const token = generateToken(16);
-    res.status(200).json({ token });
-  } else {
-    res.status(400).json({ error: 'Email and password are required.' });
+  const isValidEmail = validateEmail(email);
+  if (!email) {
+    return res.status(400).json({ message: 'O campo "email" é obrigatório' });
+  } if (!isValidEmail) {
+    return res.status(400).json({ message: 'O "email" deve ter o formato "email@email.com"' });
+  } if (!password) {
+    return res.status(400).json({ message: 'O campo "password" é obrigatório' });
+  } if (password.length < 6) {
+    return res.status(400).json({ message: 'O "password" deve ter pelo menos 6 caracteres' });
   }
+    const token = generateToken(16);
+    return res.status(200).json({ token });
 });
 
 app.listen(PORT, () => {
