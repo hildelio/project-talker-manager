@@ -8,7 +8,9 @@ const { readFile, generateToken, validateEmail, nextId, writeFile } = require('.
 const { validateToken } = require('./middlewares/talker/validations/validateToken.mdw');
 const { validateName } = require('./middlewares/talker/validations/validateName.mdw');
 const { validateAge } = require('./middlewares/talker/validations/validateAge.mdw');
-const { validateTalk, validateTalkWatchedAt, validateTalkRate } = require('./middlewares/talker/validations/validateTalk.mdw');
+const {
+  validateTalk, validateTalkWatchedAt, validateTalkRate,
+} = require('./middlewares/talker/validations/validateTalk.mdw');
 
 app.use(express.json());
 
@@ -67,7 +69,6 @@ validateTalk,
 validateTalkWatchedAt,
 validateTalkRate,
 async (req, res) => {
-  // const { name, age, talk } = req.body;
   const talkers = await readFile();
   const newTalker = {
     id: nextId(talkers),
@@ -77,6 +78,18 @@ async (req, res) => {
   talkers.push(newTalker);
   await writeFile(talkers);
   return res.status(201).json(newTalker);
+});
+
+// Req 06
+app.put('/talker/:id', async (req, res) => {
+  const { id } = req.params;
+  const { name, age, talk } = req.body;
+  const talkers = await readFile();
+  const updateTalker = talkers.find((talker) => talker.id === Number(id));
+  updateTalker.name = name;
+  updateTalker.age = age;
+  updateTalker.talk = talk;
+  res.status(200).json(updateTalker);
 });
 
 app.listen(PORT, () => {
