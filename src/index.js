@@ -103,6 +103,18 @@ async (req, res) => {
   return res.status(200).json(updateTalker);
 });
 
+// Req 07
+app.delete('/talker/:id', validateToken, async (req, res) => {
+  const { id } = req.params;
+  const talkers = await readFile();
+
+  const arrayPosition = talkers.findIndex((talker) => talker.id === Number(id));
+  talkers.splice(arrayPosition, 1);
+  await writeFile(talkers);
+
+  res.status(204).end();
+});
+
 app.listen(PORT, () => {
   console.log('Online');
 });
