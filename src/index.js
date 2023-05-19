@@ -4,7 +4,11 @@ const bodyParser = require('body-parser');
 
 const app = express();
 
-const { readFile } = require('./assets/utils');
+const { readFile, generateToken, validateEmail, nextId, writeFile } = require('./assets/utils');
+const { validateToken } = require('./middlewares/talker/validations/validateToken.mdw');
+const { validateName } = require('./middlewares/talker/validations/validateName.mdw');
+const { validateAge } = require('./middlewares/talker/validations/validateAge.mdw');
+const { validateTalk, validateTalkWatchedAt, validateTalkRate } = require('./middlewares/talker/validations/validateTalk.mdw');
 
 app.use(express.json());
 
@@ -38,21 +42,6 @@ app.get('/talker/:id', async (req, res) => {
 // Req 03 e 04
 app.use(bodyParser.json());
 
-function generateToken(length) {
-  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-  let token = '';
-  for (let i = 0; i < length; i += 1) {
-    const randomIndex = Math.floor(Math.random() * chars.length);
-    token += chars[randomIndex];
-  }
-  return token;
-}
-
-function validateEmail(email) {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-}
-
 app.post('/login', (req, res) => {
   const { email, password } = req.body;
   const isValidEmail = validateEmail(email);
@@ -67,6 +56,27 @@ app.post('/login', (req, res) => {
   }
     const token = generateToken(16);
     return res.status(200).json({ token });
+});
+
+// Req 05
+app.post('/talker', 
+validateToken, 
+validateName, 
+validateAge,
+validateTalk,
+validateTalkWatchedAt,
+validateTalkRate,
+async (req, res) => {
+  // const { name, age, talk } = req.body;
+  const talkers = await readFile();
+  const newTalker = {
+    id: nextId(talkers),
+    ...req.body, 
+  };
+
+  talkers.push(newTalker);
+  await writeFile(talkers);
+  return res.status(201).json(newTalker);
 });
 
 app.listen(PORT, () => {

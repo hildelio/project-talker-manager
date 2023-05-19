@@ -8,4 +8,27 @@ const readFile = async () => {
   return JSON.parse(talkerData);
 };
 
-module.exports = { readFile };
+const writeFile = async (talkers) => {
+  await fs.writeFile(data, JSON.stringify(talkers));
+};
+
+function generateToken(length) {
+  const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+  let token = '';
+  for (let i = 0; i < length; i += 1) {
+    const randomIndex = Math.floor(Math.random() * chars.length);
+    token += chars[randomIndex];
+  }
+  return token;
+}
+
+function validateEmail(email) {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+  return emailRegex.test(email);
+}
+
+function nextId(talkers) {
+  return talkers.length + 1;
+}
+
+module.exports = { readFile, writeFile, generateToken, validateEmail, nextId };
